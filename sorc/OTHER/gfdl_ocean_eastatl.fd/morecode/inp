@@ -1,0 +1,111 @@
+
+      SUBROUTINE SERFTEMPR
+C Changes are made on 11/01/00 to read GFS global sst
+C Biju Thomas
+
+      INCLUDE 'comblk.h'
+      PARAMETER(IM1=512,JM1=256)
+      DIMENSION XI(IM),YI(JM),X(IM1),Y(JM1)
+      DIMENSION TEM(IM1,JM1),TB1(IM,JM),ZT(4),ZTS(4)
+      REAL LATMIN,LATMAX,LONGMIN,LONGMAX
+      REAL XMIN,YMIN,MSK(IM1,JM1)
+      REAL CMP
+      COMMON/sphere/REARTH,LATMIN,LATMAX,LONGMIN,LONGMAX
+c
+CCC      XMIN=255.5-360
+CCC      read(45,*)XMIN
+CCC      close(45)
+	XMIN=-179.9
+       YMIN=-89.46
+c
+C***********************************************************
+C   SUBROUTINE SURFTEMPR ASSIGN THE ARRAY OF SEA-SURFACE 
+C   TEMPERATURE. THE DATA ARE STORED IN THE FILE 'surftem.dat'
+C***********************************************************
+c
+       OPEN(89,FILE=
+     *'sst.gfs.dat',status='old',FORM='UNFORMATTED')
+      OPEN(99,FILE=
+     *'mask.gfs.dat',status='old',FORM='UNFORMATTED')
+C
+CCC      read(8,1900) cmp
+      cmp=0.
+      READ(89) TEM
+      CLOSE(89)
+      READ(99) MSK
+      CLOSE(99)
+c      CLOSE(8)
+ 100  FORMAT(x,10F7.2)
+ 1900 FORMAT(x,F7.2)
+  101 FORMAT(75e16.5)
+c
+c      OPEN(7,FILE='serftem.dat',FORM='FORMATTED',recl=1600)
+c      WRITE(7,101) TEM
+c      CLOSE(7)
+c      print*,'Finished writinf serftem.dat'
+cc
+c      OPEN(7,FILE='serfmsk.dat',FORM='FORMATTED',recl=1600)
+c      WRITE(7,101) MSK
+c      CLOSE(7)
+c      print*,'Finished writinf serfmsk.dat'
+c
+C*********************************************************
+C  EXTRAPOLATING ORIGINAL DATA TO FILL MISSING DATA POINTS
+C*********************************************************
+      DO N1=1,10
+      DO 9 J=2,JM1-1
+      DO 9 I=2,IM1-1
+         IF(MSK(I,J).EQ.1) THEN
+      TEM(I,J)=0
+      CMP=0
+      ZT(1)=TEM(I+1,J)
+      ZTS(1)=1-MSK(I+1,J)
+      ZT(2)=TEM(I-1,J)
+      ZTS(2)=1-MSK(I-1,J)
+      ZT(3)=TEM(I,J+1)
+      ZTS(3)=1-MSK(I,J+1)
+      ZT(4)=TEM(I,J-1)
+      ZTS(4)=1-MSK(I,J-1)
+        DO N=1,4
+        TEM(I,J)=TEM(I,J)+ZTS(N)*ZT(N)
+        CMP=CMP+ZTS(N)
+        END DO
+      IF(CMP.EQ.0) THEN
+        TEM(I,J)=0.0
+      ELSE
+        TEM(I,J)=TEM(I,J)/CMP
+        MSK(I,J)=0.0
+      END IF
+         END IF
+   9  CONTINUE
+      END DO
+c
+C----------- INTERPOLATING HORIZONTALLY ALONG EACH LAYER ---------
+c
+      DO J=1,JM
+         DO I=1,IM
+         XI(I)=LONGMIN+(I-1)*(LONGMAX-LONGMIN)/(IM-1)
+         YI(J)=LATMIN+(J-1)*(LATMAX-LATMIN)/(JM-1)
+         END DO
+      END DO
+c
+      DO i=1,IM1
+         x(i)=xmin+(i-1)*0.7037
+      END DO
+         DO j=1,JM1
+         y(j)=ymin+(j-1)*0.7028
+         END DO
+
+c
+      CALL HORINTERP(0.0,IM,JM,IM1,JM1,x,y,xi,yi,TEM,TB1)
+c
+      DO J=1,JM
+         DO I=1,IM
+         STM(I,J)=TB1(I,J)-273.19-TBIAS
+         STM(I,J)=STM(I,J)*FSM(I,J)
+         end do
+      end do
+c
+      RETURN
+      END
+

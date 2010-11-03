@@ -1,0 +1,105 @@
+#!/bin/sh
+# Scripts to run ocean spinup (phase3 and phase4)
+# Written for Richard Yablonsky's research
+# Author : Biju Thomas on 07/20/05
+# Modified to run on cyclone with archived data and multiple climatologies
+# Author : Richard Yablonsky on 07/27/05
+
+#################################################################################
+# SET PARAMETERS FOR EACH NEW RUN                                               #
+#################################################################################
+##for climo in gd50m gd25m lv25m  # e.g. (gd50 gd25 lv25) OR (gd50m gd25m lv25m)
+##do
+##echo $climo
+
+stormid=18L                  # e.g. 05L
+pdy=20050915                 # e.g. 20050718
+cyc=00                       # e.g. 00
+name=rita                    # e.g. emily
+readname=prerita             # e.g. emily,prerita,rita
+region=united                # e.g. united
+sharp=gfdlm                  # i.e. gfdl,gfdlm
+sharp2=sharpmcs              # i.e. sharpop,sharpmcs
+loc=ncep                     # i.e. ncep,cyc
+climo=gd50m                  # i.e. gd50,gd25,lv25,mdas,
+##                           #      gd50m,gd25m,lv25m
+loop=rl2                     # i.e. NA,276,264,rl2
+wind=none                    # i.e. msg,hrd,none
+trunc=oper                   # i.e. orig,tcd90,hwnd,newcd,orig_ifort,oper
+suffx=std                    # i.e. std,long,vlong
+#################################################################################
+# CREATE AND MODIFY 'gfdl_$region.parm.4.$pdy$cyc-$stormid-$suffx' IN '$parm_d' #
+#################################################################################
+
+# Define directory setup
+export stormid
+export pdy
+export cyc
+export region
+export climo
+home_d=/hurricane5/richard/oceanspin
+scpt_d=$home_d/scpt
+sstd_d=$home_d/sstd
+exec_d=$home_d/exec
+fixd_d=$home_d/fixd
+clim_d=$fixd_d/$sharp2$loop$loc
+parm_d=$home_d/parm
+vitl_d=$home_d/vitl
+hwnd_d=$home_d/hwnd
+read_d=$home_d/read
+work_d=$home_d/work/$pdy$cyc-$stormid-$climo-$loop-$wind-$trunc-$suffx
+pha3_d=$work_d/phase3
+pha4_d=$work_d/phase4
+mm=`echo $pdy | cut -c5-6`
+yymmdd=`echo $pdy | cut -c3-8`
+yyyy=`echo $pdy | cut -c1-4`
+export mm
+export yymmdd
+export yyyy
+
+# Clean up work dir:!!!
+if [   -d $work_d ];   then rm -rf   $work_d; fi
+if [ ! -d $work_d ];   then mkdir -p $work_d; fi
+if [ ! -d $pha3_d ];   then mkdir -p $pha3_d; fi
+##if [ ! -d $pha4_d ];   then mkdir -p $pha4_d; fi
+
+# Use correct executable depending on CD truncation choice
+cd $exec_d
+cp gfdl_ocean_united_$trunc gfdl_ocean_united
+
+# Extract gfs realtime sst and mask
+cd $work_d
+cp $sstd_d/lonlat.gfs.$yyyy lonlat.gfs
+cp $sstd_d/sst.gfs.$pdy.dat sst.gfs.dat
+cp $sstd_d/mask.gfs.$pdy.dat mask.gfs.dat
+
+# Define all run instructions for phase3
+cd $pha3_d
+cp $parm_d/gfdl_$region.parm.3          parameters.inp.shell
+sed -e "s/_date_/${yymmdd}${cyc}/g"  \
+      -e "s/_name1_/${name}/g"     \
+      -e "s/_name2_/${name}/g"     \
+      parameters.inp.shell >parameters.inp
+/bin/rm parameters.inp.shell
+
+# Link all files for phase3 and run
+ln -s -f parameters.inp                               fort.10
+ln -s -f $clim_d/$climo"_initdata."$region.$mm        fort.13
+ln -s -f nullfile                                     fort.15
+ln -s -f $work_d/sst.gfs.dat                          fort.21
+ln -s -f $work_d/mask.gfs.dat                         fort.22
+ln -s -f $work_d/lonlat.gfs                           fort.23
+ln -s -f $fixd_d/$sharp"_Hdeepgsu."$region            fort.66
+
+$exec_d/gfdl_ocean_$region >gfdl_ocean.$region.phase3.out
+mv RST.* RST.phase3.$region
+/bin/rm fort.*
+echo "Phase3 is finished"
+
+# Do phase3 postprocessing
+$read_d/readp1_$readname
+echo "Phase3 postprocessing done... check for .dat files"
+
+cd $scpt_d
+
+##done

@@ -1,0 +1,18 @@
+3               MODE
+3               NBC
+0               TIME0           (STARTING DAY OF SIMULATION)
+1               IMAY            (1:use Mellor-Yamada mixing scheme)
+0               sstsource       (1: SST is taken from NMC file)
+_date_          startingdate    (STARTING DATE OF SIMULATION)
+_name1_               pathname        (THE NAME OF THE FILE WITH 1-st TRACK DATA)
+_name2_               pathname1       (THE NAME OF THE FILE WITH 2-nd TRACK DATA)
+900             DTI             (internal time step)
+40              ISPLIT          (modes splitting #, DTI=DTE*ISPLIT)
+0               NREAD           (0:start from begining;1:restart)
+24              IPRTH1          (printout interval in hour)
+0 -5.6          INOWINDH,VC     (no wind after-hour,spd of moving hurricane)
+0 1 3           IDAMP,ISM,SMH   (B_Damping,3D U V T S smoothing,smooth_hour)
+0.000           WNDG            (Nudging parameter)
+48              IHOURS          (integration length in hour)
+_rstph2file_
+

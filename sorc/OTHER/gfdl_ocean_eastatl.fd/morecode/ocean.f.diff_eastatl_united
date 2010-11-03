@@ -1,0 +1,460 @@
+[richard@tornado gfdl_ocean_eastatl.fd]$ diff ocean.f ../ocean_united.fd/ocean_orig.f
+1012a1013
+> c        print *,' check verZ2SIGsp  j=',j
+1014a1016
+> c         if(j.eq.48) print *,' check verZ2SIGsp i,j=',i,j
+1685c1687
+< c------ falk 01-25-02 include write after MIXSST and sharp
+---
+> c------ falk 01-25-02 include write after MIXSSTZ and sharp
+1697d1698
+< c
+2387,2388d2387
+<       cmp=0.
+< c---------- 03-13-02
+2390,2392c2389,2391
+<       print *,' In SERFTEMPR dim gfs SST data IM1,JM1,IM,JM=',IM1,JM1,IM,JM
+<       print *,' LATMIN,LATMAX,LONGMIN,LONGMAX=',
+<      *          LATMIN,LATMAX,LONGMIN,LONGMAX
+---
+> c-------------- falk 03-26-02
+>       print *,'SERFTEMPR: dim gfs SST data IM1,JM1=',IM1,JM1
+>       cmp=0.
+2467,2468d2465
+< c---------- 03-13-02
+<       print *,' In SERFTEMPR before HORINTERP'
+3636d3632
+< c----------- create new East atlantic region (im=157, jm=225)
+3638,3639c3634,3635
+<       LONGMIN=-60.
+<       LONGMAX=-30.
+---
+>       LONGMIN=-98.5
+>       LONGMAX=-50.
+3659c3655
+< c---------- falk 03-26-02
+---
+> c---------- falk 03-26-02
+3812,3815d3807
+< c--------- 03-08-01 read smoothed topog. (result of topogpath.f)
+< c                   do not use TOPOGR
+< c     CALL TOPOGR
+< c
+3818a3811,3813
+> c
+> c----------- read smoothed topography and mask
+> c
+3846a3842
+>             print*,'set h=1 at (i,j)=',i,j,H(i,j),FSM(i,j)
+3848d3843
+<             print*,'set h=1 at (i,j)=',i,j
+3867a3863,3870
+> c
+> c--------------- 03-11-02 check north bnd
+> c
+> c     print *,' check north bnd  (dvm(i,jm),i=1,im)'
+> c     write(6,102) (dvm(i,jm),i=1,im)
+> c     print *,' check north bnd  (dvm(i,jm-1),i=1,im)'
+> c     write(6,102) (dvm(i,jm-1),i=1,im)
+> c
+3893,3894c3896,3897
+<        if(sstsource.eq.1.or.sstsource.eq.2) then
+<         print *,' before SERFTEMPR NREAD=',NREAD
+---
+>       if(sstsource.eq.1.or.sstsource.eq.2) then
+>         print *,' before SERFTEMPR'
+3899c3902
+<        end if
+---
+>       end if
+3901,3902c3904,3905
+<        print *,' before TEMPR    NREAD=',NREAD
+<        CALL TEMPR(NREAD,sstsource)
+---
+>       print *,' before TEMPR      NREAD=',NREAD
+>       CALL TEMPR(NREAD,sstsource)
+3904c3907
+< c--------- falk 04-15-02
+---
+> c--------- falk 04-15-02
+3907c3910
+< c----------
+---
+> c---------
+3966a3970
+> c
+3984c3988
+< c
+---
+> c
+4048,4049d4051
+<             U(I,J,K)=UB(I,J,K)
+<             V(I,J,K)=VB(I,J,K)
+4053c4055
+< c--------- falk 04-15-02
+---
+> c--------- falk 04-15-02
+4055a4058,4066
+> c---------
+>       DO K=1,KB
+>         DO J=1,JM
+>           DO I=1,IM
+>             U(I,J,K)=UB(I,J,K)
+>             V(I,J,K)=VB(I,J,K)
+>           end do
+>         end do
+>       end do
+4712a4724,4725
+> c---------- falk 04-23-02 check
+>         print *,' check before FINDPSI'
+4714,4715c4727,4731
+<         IF(MODE.NE.2) THEN
+<         ENDIF
+---
+> c---------- falk 04-23-02 check
+>         print *,' check after FINDPSI'
+> c---------- falk 04-23-02 comment 2 next lines
+> c       IF(MODE.NE.2) THEN
+> c       ENDIF
+4729a4746,4747
+> c---------- falk 04-23-02 chrck
+>       print *,' VTOT=',VTOT
+4800,4805c4818,4821
+<       parameter(nrs=1,nrn=1,nrw=7,nre=5,
+<      *          jw1=24,jw2=48,jw3=174,jw4=184,jw5=187,jw6=198,
+<      *          je1=41,je2=65,je3=198,je4=222)
+< c------- je1=41(16.70N) je2=65(20.71) je3=198(42.98) je4=222(47.00)
+< c------- jw1=24(13.85N) jw2=48(17.87) jw3=174(38.96) jw4=184(40.63)
+< c------- jw5=187(41.14) jw6=198(42.98)
+---
+>       parameter(nrs=1,nrn=1,nrw=1,nre=7,
+>      *          je1=24,je2=48,je3=174,je4=184,je5=187,je6=198)
+> c---------- j1=24(13.85N) j2=48(17.87) j3=174(38.96) j4=184(40.63)
+> c---------- j5=187(41.14) j6=198(42.98)
+4832,4834c4848,4849
+< c------------
+<       data trnsw/0.e6,-60.0e6,0.0e6,90.0e6,0.0e6,-30.0e6,0.0e6/,
+<      *      ptsw/13.85,17.85,38.96,40.63,41.14,43.0,0.0/
+---
+> c------------ 01-09-02 change western bnd for united1 domain
+>       data trnsw/0.0e6/,ptsw/0.0/
+4837,4838c4852,4853
+<       data trnse/0.e6,-20.0e6,0.0e6,20.0e6,0.0e6/,
+<      *      ptse/16.75,20.75,43.0,47.0,0.0/
+---
+>       data trnse/0.e6,-60.0e6,0.0e6,90.0e6,0.0e6,-30.0e6,0.0e6/,
+>      *      ptse/13.85,17.85,38.96,40.63,41.14,43.0,0.0/
+4882a4898
+>       print *,'   '
+4914a4931,4933
+>       do j=je5,je6
+>        UAB(im,j)=-sin(PI*(j-je5)/(je6-je5))
+>       end do
+4935c4954
+< c     print *,'je1,je2,je3,je4=',je1,je2,je3,je4
+---
+> c     print *,'je1,je2,je3,je4,je5,je6=',je1,je2,je3,je4,je5,je6
+4962,4970d4980
+<       do j=jw1,jw2
+<        UAB(2,j)=-sin(PI*(j-jw1)/(jw2-jw1))
+<       end do
+<       do j=jw3,jw4
+<        UAB(2,j)=sin(PI*(j-jw3)/(jw4-jw3))
+<       end do
+<       do j=jw5,jw6
+<        UAB(2,j)=-sin(PI*(j-jw5)/(jw6-jw5))
+<       end do
+4973,5003d4982
+<  525  FORMAT('WESTERN BOUNDARY, REGION ',I2,':')
+<       do n=1,nrw
+<         print*,'      '
+<         write(6,525) n
+<         trnsw_inc(n)=0.0
+<         do j=indw(n)+1,indw(n+1)
+<           trnsw_inc(n)=trnsw_inc(n)+D(2,j)*DY(2,j)*UAB(2,j)
+<         end do
+<         if(abs(trnsw_inc(n)).gt.1.) then
+<          cmp=trnsw(n)/trnsw_inc(n)
+<          PRINT*,'Multiply VELOCITY to: ',cmp,' M/S...'
+< c        print *,'trnsw(n)=',trnsw(n)
+< c        print *,'trnsw_inc(n)=',trnsw_inc(n)
+<          do j=indw(n)+1,indw(n+1)
+<           uab(2,j)=uab(2,j)*cmp
+<          end do
+<         end if
+<       end do
+< c
+< c     print *,'jw1,jw2,jw3,jw4,jw5,jw6=',jw1,jw2,jw3,jw4,jw5,jw6
+< c     print*,'indw=',indw
+< c---------- falk 09/28/00 print uab for western bnd
+< c     print *,'Western bound first-guess UAB after transp correction'
+< c     do n=1,nrw
+< c      jbeg=indw(n)
+< c      jend=indw(n+1)
+< c      print *,'n,jbeg,jend=',n,jbeg,jend
+< c      print *,'(uab(2,j),j=jbeg,jend)'
+< c      write(6,201) (uab(2,j),j=jbeg,jend)
+< c     end do
+< c
+5037,5039c5016
+< c---------- falk 05-13-02 change D(1,j)=0 to D(2,j)
+< c         secar=.25E0*(D(2,j)+D(1,j))*(DY(2,j)+DY(1,j))
+<           secar=.25E0*(D(2,j)+D(2,j))*(DY(2,j)+DY(1,j))
+---
+>           secar=.25E0*(D(2,j)+D(1,j))*(DY(2,j)+DY(1,j))
+5153,5155c5130
+< c---------- falk 05-13-02 change D(1,j)=0 to D(2,j)
+< c         secar=.25E0*(D(2,j)+D(1,j))*(DY(2,j)+DY(1,j))
+<           secar=.25E0*(D(2,j)+D(2,j))*(DY(2,j)+DY(1,j))
+---
+>           secar=.25E0*(D(2,j)+D(1,j))*(DY(2,j)+DY(1,j))
+5187,5189c5162,5164
+< c     do n=1,nrw
+< c      jbeg=indw(n)
+< c      jend=indw(n+1)
+---
+>       do n=1,nrw
+>        jbeg=indw(n)
+>        jend=indw(n+1)
+5192,5193d5166
+< c      write(6,201) (uab(2,j),j=jbeg,jend)
+< c      print *,'n,jbeg,jend=',n,jbeg,jend
+5199c5172
+< c     end do
+---
+>       end do
+5244,5246c5217,5219
+< c     do n=1,nrs
+< c      ibeg=inds(n)
+< c      ient=inds(n+1)
+---
+>       do n=1,nrs
+>        ibeg=inds(n)
+>        ient=inds(n+1)
+5255c5228
+< c     end do
+---
+>       end do
+5296,5298c5269,5271
+< c     do n=1,nre
+< c      jbeg=inde(n)
+< c      jend=inde(n+1)
+---
+>       do n=1,nre
+>        jbeg=inde(n)
+>        jend=inde(n+1)
+5307c5280
+< c     end do
+---
+>       end do
+5342a5316
+> c
+5348,5350c5322,5324
+< c     do n=1,nrn
+< c      ibeg=indn(n)
+< c      ient=indn(n+1)
+---
+>       do n=1,nrn
+>        ibeg=indn(n)
+>        ient=indn(n+1)
+5359c5333,5379
+< c     end do
+---
+>       end do
+> c
+> c----------- 03-10-02 check north bnd
+> c
+>       TRNUmax=0.
+>       ARUmax=0.
+>        DYmax=0.
+>         Dmax=0.
+>       do i=1,im
+>        if(abs(TRNU(i,jm-1)).gt.TRNUmax) TRNUmax=abs(TRNU(i,jm-1))
+>        if(abs(ARU(i,jm-1)).gt.ARUmax) ARUmax=abs(ARU(i,jm-1))
+>        if(abs(DY(i,jm-1)).gt.DYmax) DYmax=abs(DY(i,jm-1))
+>        if(abs(D(i,jm-1)).gt.Dmax) Dmax=abs(D(i,jm-1))
+>       end do
+> c     print *,' check north bnd TRNUmax=',TRNUmax
+> c     print *,'(TRNU(i,jm-1)/TRNUmax,i=1,im)'
+> c     write(6,201) (TRNU(i,jm-1)/TRNUmax,i=1,im)
+> c
+> c     print *,' check north bnd ARUmax=',ARUmax
+> c     print *,'(ARU(i,jm-1)/ARUmax,i=1,im)'
+> c     write(6,201) (ARU(i,jm-1)/ARUmax,i=1,im)
+> c
+> c     print *,' check north bnd DYmax=',DYmax
+> c     print *,'(DY(i,jm-1)/DYmax,i=1,im)'
+> c     write(6,201) (DY(i,jm-1)/DYmax,i=1,im)
+> c
+> c     print *,' check north bnd Dmax=',Dmax
+> c     print *,'(D(i,jm-1)/Dmax,i=1,im)'
+> c     write(6,201) (D(i,jm-1)/Dmax,i=1,im)
+> c
+> c     print *,'(vab(i,jm-1),i=1,im)'
+> c     write(6,201) (vab(i,jm-1),i=1,im)
+> c     print *,'(COR(i,jm-1)*1.E4,i=1,im)'
+> c     write(6,201) (COR(i,jm-1)*1.E4,i=1,im)
+> c
+> c     print *,'(dvm(i,jm-1),i=1,im)'
+> c     write(6,200) (dvm(i,jm-1),i=1,im)
+> c     print *,'(FSM(i,jm-1),i=1,im)'
+> c     write(6,200) (FSM(i,jm-1),i=1,im)
+> c     print *,'(FSM(i,jm),i=1,im)'
+> c     write(6,200) (FSM(i,jm),i=1,im)
+> c     print *,'(H(i,jm),i=1,im)'
+> c     write(6,200) (H(i,jm),i=1,im)
+> c     print *,'(H(i,jm-1),i=1,im)'
+> c     write(6,200) (H(i,jm-1),i=1,im)
+> c
+> c     stop
+5447a5468,5546
+>       SUBROUTINE MIXSST
+> c---------------------------------------------------------------------
+> c  this subroutine 'mixes' NMC temperature down
+> c---------------------------------------------------------------------
+> c---- MXD is the max depth where climatological temperature is modified ---
+> c---- it is computed as climat. mixed layer depth + transition depth ------
+> c---- transition depth id calculated on the basis of simple criteria ------
+> c---- the added temperature gradient should not exceed 2 deg per 50m ------
+> c
+>       include 'comblk.h'
+>       real MXD, DTS
+> c
+> c------------ falk 03-26-02 check STM
+> c
+>       difmax=0.
+>       difmin=0.
+>       do i=1,im
+>       do j=1,jm
+>        if(FSM(i,j).gt.0.5) then
+>         difp=STM(i,j)-TB(i,j,1)
+>         difm=-difp
+>         if(difp.gt.difmax) then
+>          idifmax=i
+>          jdifmax=j
+>          difmax=difp
+>         end if
+>         if(difm.gt.difmin) then
+>          idifmin=i
+>          jdifmin=j
+>          difmin=difm
+>         end if
+>        end if
+>       end do
+>       end do
+>       print *,' MIXSST: max(STM-TB(1)),i,j'
+>       print *,' difmax,idifmax,jdifmax=',difmax,idifmax,jdifmax
+>       print *,' MIXSST: max(TB(1)-STM),i,j'
+>       print *,' difmin,idifmin,jdifmin=',difmin,idifmin,jdifmin
+> c
+>       call oadjust(0)
+>       do j=1,jm
+>         do i=1,im
+>           if(STM(i,j).gt.TB(i,j,1)) then
+>             n=1
+>             do while ((TB(i,j,1)-TB(i,j,n+1)).le.0.5.and.n.lt.kbm1)
+>               n=n+1
+>             end do
+>             n1=1
+>             MXD=-D(I,J)*ZZ(n)+(STM(i,j)-TB(i,j,1))/2.*50.
+>             DTS=STM(i,j)-TB(i,j,1)
+>             do while (-D(I,J)*ZZ(n1).le.MXD.and.n1.lt.kbm1)
+>               n1=n1+1
+>             end do
+>             do k=1,kb
+>               if(k.lt.n) then
+>                 TB(i,j,k)=TB(i,j,k)+DTS
+>                 T(i,j,k)=T(i,j,k)+DTS
+>               else
+>                 if(k.lt.n1) TB(i,j,k)=TB(i,j,k)+float(n1-k)/(n1-n)*DTS
+>                 if(k.lt.n1) T(i,j,k)=T(i,j,k)+float(n1-k)*DTS/(n1-n)
+>               end if
+>             end do
+>           else
+>             TB(i,j,1)=STM(i,j)
+>             T(i,j,1)=STM(i,j)
+>           end if
+>           do k=2,kb
+>             if(T(i,j,k).gt.T(i,j,k-1)) T(i,j,k)=T(i,j,k-1)
+>             if(TB(i,j,k).gt.TB(i,j,k-1)) TB(i,j,k)=TB(i,j,k-1)
+>           end do
+>         end do
+>       end do
+>       call oadjust(0)
+> c
+>       return
+>       end
+> c
+> c-------------
+> c
+5478c5577
+<        i1=69
+---
+>        i1=155
+5496c5595
+< c
+---
+> c
+5523a5623,5626
+> c
+> c-------------- for debug
+> c     STM(100,50)=f(100,50,1)+10.
+> c
+5545c5648
+< c        if(i.eq.113.and.(j.ge.185.and.j.le.205)) then
+---
+> c        if(i.eq.199.and.(j.ge.185.and.j.le.205)) then
+5561c5664
+< c          if(i.eq.56.and.j.eq.1) then
+---
+> c          if(i.eq.idifmax.and.j.eq.jdifmax) then
+5596c5699
+< c           if(i.eq.56.and.j.eq.1) then
+---
+> c           if(i.eq.idifmax.and.j.eq.jdifmax) then
+5636c5739
+< c           if(i.eq.113.and.(j.ge.185.and.j.le.205)) then
+---
+> c           if(i.eq.idifmin.and.j.eq.jdifmin) then
+5656c5759
+< c         if(i.eq.113.and.(j.ge.185.and.j.le.205)) then
+---
+> c         if(i.eq.idifmax.and.j.eq.jdifmax) then
+5669c5772
+<        i1=69
+---
+>        i1=155
+5887c5990
+<            call filtr1D(tr,mmm,1,jj,kf)
+---
+> c           call filtr1D(tr,mmm,1,jj,kf)
+5913a6017,6025
+> c-----------------
+> c      if(i.eq.203.and.j.eq.48) then
+> c       print *,'check verZ2SIGsp i,j=',i,j
+> c       print *,'(x(l),l=1,n)'
+> c       write(6,501) (x(l),l=1,n)
+> c       print *,'(y(l),l=1,n)'
+> c       write(6,502) (y(l),l=1,n)
+> c      end if
+> c-----------------
+5924a6037,6046
+> c-----------------
+> c      if(i.eq.203.and.j.eq.48) then
+> c       print *,'check verZ2SIGsp i,j=',i,j
+> c       print *,' i,j,n,ni,lb,h=',i,j,n,ni,lb,h
+> c       print *,'(x(l),l=1,lb)'
+> c       write(6,501) (x(l),l=1,lb)
+> c       print *,'(y(l),l=1,lb)'
+> c       write(6,502) (y(l),l=1,lb)
+> c      end if
+> c-----------------
+5940c6062
+< c      if(i.eq.125.and.j.eq.25.or.i.eq.100.and.j.eq.91) then
+---
+> c      if(i.eq.175.and.j.eq.25.or.i.eq.100.and.j.eq.91) then
+5957a6080
+> c
+6021d6143
+< c
+[richard@tornado gfdl_ocean_eastatl.fd]$

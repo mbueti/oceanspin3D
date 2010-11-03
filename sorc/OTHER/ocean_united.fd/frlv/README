@@ -1,0 +1,8 @@
+RMY 12/14/06:
+
+I created frlv_alt based on coding in the sharpening code, subroutine mixLevGDEMm, p. 72...
+
+In theory, the frlv_alt code should produce the same result as the frlv code, but the exec's differ...
+
+Need to run both and check output to know for sure if there are differences!!!
+

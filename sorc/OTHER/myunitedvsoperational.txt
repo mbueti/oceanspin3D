@@ -1,0 +1,1193 @@
+1601,1603c1601,1605
+<       DATA Zlev/0,10,20,30,50,75,100,125,150,200,250,300,400
+<      1  ,500,600,700,800,900,1000,1100,1200,1300,1400,1500
+<      2  ,1750,2000,2500,3000,3500,4000,4500,5000,5500/
+---
+> c---------- falk 03-24-05 use real data with .
+>       DATA Zlev/   0.,  10.,  20.,  30.,  50.,  75., 100., 125.
+>      1         , 150., 200., 250., 300., 400., 500., 600., 700.
+>      2         , 800., 900.,1000.,1100.,1200.,1300.,1400.,1500.
+>      3   ,1750.,2000.,2500.,3000.,3500.,4000.,4500.,5000.,5500./
+1698c1700,1708
+< c     close(28)
+---
+> c------------- falk 03-11-05 write after MIXSSTZ as in fort.13
+> c------------- falk 03-24-05  write(82) only in Phase3 (NREAD=0)
+> c-------------              and do not do it in Phase4 (NREAD=1)
+> c     if(NREAD.eq.0) then
+> c      rewind(82)
+> c      write(82) f
+> c      write(82) f1
+> c      close(82)
+> c     end if
+1723,1728c1733,1738
+< cbt      FN = 'GRADS.'//DOUT
+< cbt      OPEN(91,FILE=FN,STATUS='UNKNOWN',form='unformatted')
+< cbt      WRITE(91) T,S,RHO,U,V,UA,VA,ELB
+< cbt      WRITE(6,*) 'OUTPUT GRADS FILE '
+< cbt      WRITE(6,*) ' --> ',FN
+< cbt      CLOSE(91)
+---
+>          FN = 'GRADS.'//DOUT
+>          OPEN(91,FILE=FN,STATUS='UNKNOWN',form='unformatted')
+>          WRITE(91) T,S,RHO,U,V,UA,VA,ELB
+>          WRITE(6,*) 'OUTPUT GRADS FILE '
+>          WRITE(6,*) ' --> ',FN
+>          CLOSE(91)
+2016a2027,2049
+> c--------------- falk  07-22-03 07-24-03 check point i=22, j=66
+> c----------- falk 09-12-05 change output
+>       if(MOD(IINT,24).EQ.0) then
+>        i=22
+>        j=66
+>        print *,' IINT, i,j =',IINT,i,j
+>        write(6,307)
+>   307  format(1X,'    K       A         C        EE       GG      UF',
+>      *        '         RHO       RMEAN')
+>        do k=kb-5,kb
+>         write(6,308)k,A(i,j,k),C(i,j,k),EE(i,j,k),GG(i,j,k),UF(i,j,k),
+>      *              RHO(i,j,k),RMEAN(i,j,k)
+>   308   format(1x,i7,7(1PE10.2))
+>        end do
+>        write(6,309)
+>   309  format(1X,'    K      CC       BOYGR     PROD        T        S',
+>      *    '        U          V')
+>        do k=kb-5,kb
+>         write(6,310)k,CC(i,j,k),BOYGR(i,j,k),PROD(i,j,k),
+>      *      T(i,j,k)+TBIAS,S(i,j,k)+SBIAS,U(i,j,k),V(i,j,k)
+>   310   format(1x,i7,7(1PE10.2))
+>        end do
+>       end if 
+2084a2118,2127
+> c--------------------- falk 07-21-03 07-24-03 check KM
+>       pmaxKM=0.
+>       imaxKM=0
+>       jmaxKM=0
+>       kmaxKM=0
+> c--------------------- falk 09-14-05 check W
+>       pmaxW=0.
+>       imaxW=0
+>       jmaxW=0
+>       kmaxW=0
+2091a2135,2152
+> c------------ falk 09-14-05 check influence of KM,KH
+> c     if(KQ(I,J,K).gt.0.1) KQ(I,J,K)=0.1
+> c     if(KM(I,J,K).gt.0.1) KM(I,J,K)=0.1
+> c     if(KH(I,J,K).gt.0.1) KH(I,J,K)=0.1
+> c--------------------- falk 07-21-03 07-24-03 check KM
+>       if(ABS(KM(I,J,K)).gt.pmaxKM) then
+>        pmaxKM=ABS(KM(I,J,K))
+>        imaxKM=i
+>        jmaxKM=j
+>        kmaxKM=k
+>       end if
+> c--------------------- falk 09-14-05 check W
+>       if(ABS(W(I,J,K)).gt.pmaxW) then
+>        pmaxW=ABS(W(I,J,K))
+>        imaxW=i
+>        jmaxW=j
+>        kmaxW=k
+>       end if
+2092a2154,2194
+> c----------- falk 09-12-05 change output
+>       if(MOD(IINT,24).EQ.0) then
+>        write(6,301) IINT,TIME*24.,imaxKM,jmaxKM,kmaxKM,pmaxKM
+>   301  format('IINT,TIME*24.,imaxKM,jmaxKM,kmaxKM,pmaxKM=',
+>      * i7,f7.2,3i7,1PE10.2)
+>        write(6,302) H(imaxKM,jmaxKM),WUSURF(imaxKM,jmaxKM),
+>      * WVSURF(imaxKM,jmaxKM),WUBOT(imaxKM,jmaxKM),WVBOT(imaxKM,jmaxKM)
+>   302  format('H,WUSURF,WVSURF,WUBOT,WVBOT in (imaxKM,jmaxKM)=',
+>      *       f7.0,4(1PE10.2))
+> c--------------------- falk 09-14-05 check W
+>        write(6,401) IINT,TIME*24.,imaxW,jmaxW,kmaxW,pmaxW
+>   401  format('IINT,TIME*24.,imaxW,jmaxW,kmaxW,pmaxW=',
+>      * i7,f7.2,3i7,1PE10.2)
+>        i=imaxW
+>        j=jmaxW
+>        print *,' W(k) ,k=1,kb  in point imaxW,jmaxW'
+>        write(6,402) (W(i,j,k),k=1,kb)
+>   402  format(10(1PE10.2))
+> c-------------------- falk 07-22-03 check point i=22,j=66
+> c----------- falk 09-12-05 change output
+> c      i=22
+> c      j=66
+>        i=imaxKM
+>        j=jmaxKM
+>        print *,'   in point imaxKM,jmaxKM=',imaxKM,jmaxKM
+>        write(6,303)
+>   303  format(1X,'    K      EE        GG        VF        L      GH')
+> c      do k=kb-5,kb
+>        do k=1,kb
+>         write(6,304) k,EE(i,j,k),GG(i,j,k),VF(i,j,k),L(i,j,k),GH(i,j,k)
+>   304   format(1x,i7,5(1PE10.2))
+>        end do
+>        write(6,305)
+>   305  format(1X,'    K      SM        KN        KQ       KM      KH')
+> c      do k=kb-5,kb
+>        do k=1,kb
+>         write(6,306)k,SM(i,j,k),KN(i,j,k),KQ(i,j,k),KM(i,j,k),KH(i,j,k)
+>   306   format(1x,i7,5(1PE10.2))
+>        end do
+> c----------- falk 09-12-05 change output
+>        end if
+2354c2456
+< c--------- falk 07-06-01 use SERFTEMPR which reads GFS sst
+---
+> c--------- falk 07-06-01 use SERFTEMPR which reads AVN sst
+2357c2459
+< C Changes are made on 11/01/00 to read GFS global sst
+---
+> C Changes are made on 11/01/00 to read AVN global sst
+2363c2465
+<       DIMENSION XGFS(IM1),YGFS(JM1)
+---
+>       DIMENSION XAVN(IM1),YAVN(JM1)
+2381c2483
+< CC     *'sst.gfs.dat',status='old',FORM='UNFORMATTED')
+---
+> CC     *'sst.avn.dat',status='old',FORM='UNFORMATTED')
+2383c2485
+< CC     *'mask.gfs.dat',status='old',FORM='UNFORMATTED')
+---
+> CC     *'mask.avn.dat',status='old',FORM='UNFORMATTED')
+2385c2487
+< CC     *'lonlat_gfs_t170',status='old',FORM='FORMATTED')
+---
+> CC     *'lonlat_avn_t170',status='old',FORM='FORMATTED')
+2390c2492
+<       print *,'SERFTEMPR: dim gfs SST data IM1,JM1=',IM1,JM1
+---
+>       print *,'SERFTEMPR: dim avn SST data IM1,JM1=',IM1,JM1
+2400c2502
+<       READ(23,123)XGFS,YGFS
+---
+>       READ(23,123)XAVN,YAVN
+2460c2562
+<          x(i)=XGFS(I)
+---
+>          x(i)=XAVN(I)
+2463c2565
+<          y(j)=YGFS(J)
+---
+>          y(j)=YAVN(J)
+2918c3020
+<       print*,'In subroutine WIND ...'
+---
+> c     print*,'In subroutine WIND ...'
+2930c3032
+<       print*,'reading file ',filename
+---
+> c     print*,'reading file ',filename
+2935a3038,3040
+> c----------- falk 09-12-05 change output
+>        if(MOD(IINT,24).EQ.0) then
+>         print*,'reading file ',filename
+2936a3042
+>        end if
+2960a3067,3068
+> c----------- falk 09-12-05 change output
+>       if(MOD(IINT,24).EQ.0) then
+2962c3070,3073
+<       print*,'tm=',(tm(i),i=1,ipmax)
+---
+> c---------------- falk 01-05-04 change printing
+> c     print*,'tm=',(tm(i),i=1,ipmax)
+>       write(6,101) (tm(i),i=1,ipmax)
+>  101  format(10f7.2)
+2964a3076
+>       end if
+2977a3090
+> c---------- falk 01-05-04 change printing
+3043a3157,3158
+> c----------- falk 09-12-05 change output
+>       if(MOD(IINT,24).EQ.0) then
+3048a3164
+>       end if
+3065c3181,3182
+<       if((tm(ii)-time) .le. 0. .and. ii .ne. ipmax) then
+---
+> c----------- falk 01-05-04 not to go out bnd
+>       if((tm(ii)-time).le.0.and.ii.ne.ipmax) then
+3085c3202,3204
+<       print*,'utx,uty: ',utx,uty
+---
+> c----------- falk 09-12-05 change output
+>       if(MOD(IINT,24).EQ.0) 
+>      *print*,'utx,uty: ',utx,uty
+3091c3210,3212
+<       print*,'B= ',B
+---
+> c----------- falk 09-12-05 change output
+>       if(MOD(IINT,24).EQ.0) 
+>      *print*,'B= ',B
+3106c3227
+<       if (deltax .eq. 0.) deltax=1.e-8
+---
+>       if(abs(DELTAX).lt.1.e-8) DELTAX=1.e-8
+3168c3289,3290
+<       if (deltax .eq. 0.) deltax=1.e-8
+---
+> c------------ falk 01-05-04 check DELTAX
+>       if(abs(DELTAX).lt.1.e-8) DELTAX=1.e-8
+3218c3340
+<       if (deltax .eq. 0.) deltax=1.e-8
+---
+>       if(abs(DELTAX).lt.1.e-8) DELTAX=1.e-8
+3274c3396,3402
+<       print*,'Exiting WIND ...'
+---
+> c
+> c------------------------- falk 01-05-04 add call avrtau
+>       call avrtau(x0,y0,0)
+> c
+> c----------- falk 09-12-05 change output
+>       if(MOD(IINT,24).EQ.0) 
+>      *print*,'Exiting WIND ...'
+3650c3778
+< c  Reading gfs data dimensions Biju Thomas on 01/27/02
+---
+> c  Reading avn data dimensions Biju Thomas on 01/27/02
+3656c3784
+<       print *,' read gfs data dimensions IM1,JM1=',IM1,JM1
+---
+>       print *,' read avn data dimensions IM1,JM1=',IM1,JM1
+4091a4220,4221
+> c-------------- falk 01-05-04 read param. for avrtau
+>      4 ,tauavr,taumax,awucon,bwucon,migtau
+4144a4275,4276
+> c--------------  07-18-03 include output for turb.
+>       call out1D(startdate,LATMIN,LATMAX,LONGMIN,LONGMAX)
+4185,4197d4316
+< c Changes Biju Thomas to slowly increase WUSURF and WVSURF on 03/24/2003
+<           WSURFC=1.
+< c         if(time*24..lt.6.) WSURFC=1.-(6.-time*24.)/6.
+<           if(time*24..lt.12.) WSURFC=1.-(12.-time*24.)/12.
+< c          print*,'watch',time*24.,WSURFC
+<           do i=1,im
+<           do j=1,jm
+< c          print*,'watch',time*24.,WSURFC,WUSURF(i,j),WSURFC*WUSURF(i,j)
+<             WUSURF(i,j)=WSURFC*WUSURF(i,j)
+<             WVSURF(i,j)=WSURFC*WVSURF(i,j)
+<           end do
+<           end do
+< c  -------------------------------03/24/2003----------------------------
+4454c4573
+<       print*,'IMAY=',IMAY
+---
+> c     print*,'IMAY=',IMAY
+4707a4827,4829
+> c------------- 1D 07-18-03 include new out1D
+>       IF(MOD(IINT,24).EQ.0.) 
+>      *          call out1D(startdate,LATMIN,LATMAX,LONGMIN,LONGMAX)
+4818,4821d4939
+<       parameter(nrs=1,nrn=1,nrw=1,nre=7,
+<      *          je1=24,je2=48,je3=174,je4=184,je5=187,je6=198)
+< c---------- j1=24(13.85N) j2=48(17.87) j3=174(38.96) j4=184(40.63)
+< c---------- j5=187(41.14) j6=198(42.98)
+4822a4941,4988
+> c     parameter(nrs=1,nrn=1,nrw=1,nre=7,
+> c---------- 05-29-02 use climate GS path (URI) yout=40.4-0.2
+> c    *          je1=24,je2=48,je3=176,je4=186,je5=189,je6=200)
+> c    *          je1=24,je2=48,je3=174,je4=184,je5=187,je6=198)
+> c---------- je1=24(13.85N) je2=48(17.87) je3=176(39.30) je4=186(40.97)
+> c---------- je5=189(41.47) je6=200(43.31)
+> c
+> c------------- falk 11-21-02 change east bnd: include 3 currents
+> c     parameter(nrs=1,nrn=1,nrw=1,nre=10,
+> c    *          je1=4,je2=22,je3=40,je4=43,je5=61,je6=176,
+> c    *          je7=186,je8=189,je9=200)
+> c--------- je1=4(10.50),je2=22(13.52),je3=40(16.53),je4=43(17.03),
+> c--------- je5=61(20.04),je6=176(39.30),je7=186(40.97),je8=189(41.47),
+> c--------- je9=200(43.31)
+> c
+> c-------- falk 12-05-02 change east bnd: include 5 additional currents
+> c     parameter(nrs=1,nrn=1,nrw=1,nre=11,
+> c    *          je1=4,je2=22,je3=38,je4=53,je5=68,je6=83,je7=176,
+> c    *          je8=186,je9=189,je10=200)
+> c--------- je1=4(10.50),je2=22(13.52),je3=38(16.19),je4=53(18.71),
+> c--------- je5=68(21.22),je6=83(23.73),je7=176(39.30),je8=186(40.97),
+> c--------- je9=189(41.47),je10=200(43.31)
+> c
+> c-------- falk 12-09-02 increase distances beetw. 5 additional currents
+> c     parameter(nrs=1,nrn=1,nrw=1,nre=11,
+> c    *          je1=4,je2=20,je3=37,je4=55,je5=73,je6=91,je7=176,
+> c    *          je8=186,je9=189,je10=200)
+> c--------- je1=4(10.50),je2=20(13.18),je3=37(16.03),je4=55(19.04),
+> c--------- je5=73(22.05),je6=91(25.07),je7=176(39.30),je8=186(40.97),
+> c--------- je9=189(41.47),je10=200(43.31)
+> c
+> c------- 12-12-02 do not use TR1; put at 50W: TR2 at 13.5, TR3 at 17.5,
+> c-------   TR5 at 23.0; do not use use TR4
+> c     parameter(nrs=1,nrn=1,nrw=1,nre=10,
+> c    *          je1=10,je2=34,je3=58,je4=67,je5=91,je6=176,
+> c    *          je7=186,je8=189,je9=200)
+> c--------- je1=10(11.51),je2=34(15.52),je3=58(19.54),je4=67(21.05),
+> c--------- je5=91(25.07),je6=176(39.30),je7=186(40.97),
+> c--------- je8=189(41.47),je9=200(43.31)
+> c--------- 12-17-02 use 5 TR's at 11.,13.5,16.5,19.5,23.
+> c--------- 12-23-02 use for TR5 22.5 at 50W (85 instead of 91)
+> c--------- 12-24-02 do not use TR5 (fromje4 to je5 transp=0.Sv)
+>       parameter(nrs=1,nrn=1,nrw=1,nre=10,
+>      *          je1=13,je2=31,je3=49,je4=67,je5=85,je6=176,
+>      *          je7=186,je8=189,je9=200)
+> c--------- je1=13(12.01),je2=31(15.02),je3=49(18.04),je4=67(21.05),
+> c--------- je5=85(24.06),je6=176(39.30),je7=186(40.97),
+> c--------- je8=189(41.47),je9=200(43.31)
+4852,4853c5018,5052
+<       data trnse/0.e6,-60.0e6,0.0e6,90.0e6,0.0e6,-30.0e6,0.0e6/,
+<      *      ptse/13.85,17.85,38.96,40.63,41.14,43.0,0.0/
+---
+> c     data trnse/0.e6,-60.0e6,0.0e6,90.0e6,0.0e6,-30.0e6/,
+> c------------- 05-29-02 use climate GS path from URI
+> c    *      ptse/13.85,17.85,38.96,40.63,41.14,43.0,0.0/
+> c    *      ptse/13.85,17.85,39.30,40.97,41.47,43.31,0.0/
+> c
+> c------------- falk 11-21-02 change east bnd: include 3 currents
+> c     data trnse/0.e6,-15.0e6,-19.0e6,0.0e6,-26.0e6,0.0e6,
+> c    *           90.0e6,0.0e6,-30.0e6/,
+> c    *      ptse/10.50,13.52,16.53,17.03,20.04,39.30,40.97,
+> c    *           41.47,43.31,0.0/
+> c-------- falk 12-05-02 change east bnd: include 5 additional currents
+> c     data trnse/0.e6,-15.0e6,-18.0e6,-8.0e6,-11.0e6,-8.0e6,0.0e6,
+> c    *           90.0e6,0.0e6,-30.0e6/,
+> c    *      ptse/10.50,13.52,16.19,18.71,21.22,23.73,39.30,40.97,
+> c    *           41.47,43.31,0.0/
+> c-------- falk 12-09-02 increase distances beetw. 5 additional currents
+> c     data trnse/0.e6,-15.0e6,-18.0e6,-8.0e6,-11.0e6,-8.0e6,0.0e6,
+> c    *           90.0e6,0.0e6,-30.0e6/,
+> c    *      ptse/10.50,13.18,16.03,19.04,22.05,25.07,39.30,40.97,
+> c    *           41.47,43.31,0.0/
+> c------- 12-12-02 do not use TR1; put at 50W: TR2 at 13.5, TR3 at 17.5,
+> c-------          TR5 at 23.0; do not use TR4 
+> c     data trnse/0.e6,-30.0e6,-19.0e6,-0.0e6,-11.0e6,0.0e6,
+> c    *           90.0e6,0.0e6,-30.0e6/,
+> c    *      ptse/11.51,15.52,19.54,21.05,25.07,39.30,40.97,
+> c    *           41.47,43.31,0.0/
+> c--------- 12-17-02 use 5 TR's at 11.,13.5,16.5,19.5,23.
+> c--------- 12-24-02 do not use TR5 (fromje4 to je5 transp=0.Sv)
+> c--------- 03-12-03 include in data trnse 0.0 for nre=10
+> c     data trnse/-15.e6,-19.0e6,-11.0e6,-15.0e6,-0.0e6,0.0e6,
+> c    *           90.0e6,0.0e6,-30.0e6/,
+>       data trnse/-15.e6,-19.0e6,-11.0e6,-15.0e6,-0.0e6,0.0e6,
+>      *           90.0e6,0.0e6,-30.0e6,0.0e6/,
+>      *      ptse/12.01,15.02,18.04,21.05,24.06,39.30,40.97,
+>      *           41.47,43.31,0.0/
+4862c5061
+< c       write(6,202) n,alonind
+---
+>         write(6,202) n,alonind
+4873c5072
+< c       write(6,202) n,alonind
+---
+>         write(6,202) n,alonind
+4883c5082
+< c       write(6,203) n,alatind
+---
+>         write(6,203) n,alatind
+4890c5089
+< c     print *,'     eastern bnd'
+---
+>       print *,'     eastern bnd'
+4894c5093
+< c       write(6,203) n,alatind
+---
+>         write(6,203) n,alatind
+4898d5096
+<       print *,'   '
+4918c5116
+< c     print*,'SOUTHERN BOUNDARY: inds=',inds
+---
+>       print*,'SOUTHERN BOUNDARY: inds=',inds
+4921a5120,5141
+> c------------- falk 11-21-02 change east bnd: include 3 currents
+> c     do j=1,jm
+> c      UAB(im,j)=0.
+> c     end do
+> c     do j=je1,je2
+> c      UAB(im,j)=-sin(PI*float(j-je1)/float(je2-je1))
+> c     end do
+> c     do j=je2,je3
+> c      UAB(im,j)=-sin(PI*float(j-je2)/float(je3-je2))
+> c     end do
+> c     do j=je4,je5
+> c      UAB(im,j)=-sin(PI*float(j-je4)/float(je5-je4))
+> c     end do
+> c     do j=je6,je7
+> c      UAB(im,j)=sin(PI*float(j-je6)/float(je7-je6))
+> c     end do
+> c     do j=je8,je9
+> c      UAB(im,j)=-sin(PI*float(j-je8)/float(je9-je8))
+> c     end do
+> c-------- falk 12-05-02 change east bnd: include 5 additional currents
+> c-------- falk 12-17-02 use again 5 TR's
+> c---------  at 11.,13.5,16.5,19.5,23.
+4924a5145,5147
+>       do j=1,je1
+>        UAB(im,j)=-sin(PI*float(j-1)/float(je1-1))
+>       end do
+4926c5149,5152
+<        UAB(im,j)=-sin(PI*(j-je1)/(je2-je1))
+---
+>        UAB(im,j)=-sin(PI*float(j-je1)/float(je2-je1))
+>       end do
+>       do j=je2,je3
+>        UAB(im,j)=-sin(PI*float(j-je2)/float(je3-je2))
+4929c5155,5162
+<        UAB(im,j)=sin(PI*(j-je3)/(je4-je3))
+---
+>        UAB(im,j)=-sin(PI*float(j-je3)/float(je4-je3))
+>       end do
+> c--------- 12-24-02 do not use TR5 (fromje4 to je5 transp=0.Sv)
+> c     do j=je4,je5
+> c      UAB(im,j)=-sin(PI*float(j-je4)/float(je5-je4))
+> c     end do
+>       do j=je6,je7
+>        UAB(im,j)=sin(PI*float(j-je6)/float(je7-je6))
+4931,4932c5164,5165
+<       do j=je5,je6
+<        UAB(im,j)=-sin(PI*(j-je5)/(je6-je5))
+---
+>       do j=je8,je9
+>        UAB(im,j)=-sin(PI*float(j-je8)/float(je9-je8))
+4946,4947c5179,5180
+< c        print *,'trnse(n)=',trnse(n)
+< c        print *,'trnse_inc(n)=',trnse_inc(n)
+---
+>          print *,'trnse(n)=',trnse(n)
+>          print *,'trnse_inc(n)=',trnse_inc(n)
+4954,4955c5187,5188
+< c     print *,'je1,je2,je3,je4,je5,je6=',je1,je2,je3,je4,je5,je6
+< c     print*,'inde=',inde
+---
+>       print *,'je1,je2,je3,je4,je5,je6=',je1,je2,je3,je4,je5,je6
+>       print*,'inde=',inde
+4957c5190
+< c     print *,'Eastern bound first-guess UAB after transp correction'
+---
+>       print *,'Eastern bound first-guess UAB after transp correction'
+4961,4963c5194,5196
+< c      print *,'n,jbeg,jend=',n,jbeg,jend
+< c      print *,'(uab(im,j),j=jbeg,jend)'
+< c      write(6,201) (uab(im,j),j=jbeg,jend)
+---
+>        print *,'n,jbeg,jend=',n,jbeg,jend
+>        print *,'(uab(im,j),j=jbeg,jend)'
+>        write(6,201) (uab(im,j),j=jbeg,jend)
+4973c5206
+< c     print*,' NORTHERN BND: indn=',indn
+---
+>       print*,' NORTHERN BND: indn=',indn
+4981c5214
+< c     print*,'WESTERN BND: indw=',indw
+---
+>       print*,'WESTERN BND: indw=',indw
+5016c5249,5251
+<           secar=.25E0*(D(2,j)+D(1,j))*(DY(2,j)+DY(1,j))
+---
+> c---------- falk 05-13-02 change D(1,j)=0 to D(2,j)
+> c         secar=.25E0*(D(2,j)+D(1,j))*(DY(2,j)+DY(1,j))
+>           secar=.25E0*(D(2,j)+D(2,j))*(DY(2,j)+DY(1,j))
+5107c5342,5344
+<       do nnn=1,3
+---
+> c------------- 02-05-03 do not use iteration
+> c
+> c     do nnn=1,3
+5125d5361
+<       print *,'   Western boundary, iteration nnn=',nnn
+5130c5366,5368
+<           secar=.25E0*(D(2,j)+D(1,j))*(DY(2,j)+DY(1,j))
+---
+> c---------- falk 05-13-02 change D(1,j)=0 to D(2,j)
+> c         secar=.25E0*(D(2,j)+D(1,j))*(DY(2,j)+DY(1,j))
+>           secar=.25E0*(D(2,j)+D(2,j))*(DY(2,j)+DY(1,j))
+5158a5397
+> c-------------- 02-14-03 do not print nnn
+5159a5399
+>       print *,'   Western boundary'
+5165,5170c5405,5412
+< c      print *,'n,jbeg,jend=',n,jbeg,jend
+< c      print *,'(uab(2,j),j=jbeg,jend)'
+< c      print *,'(el(2,j),j=jbeg,jend)'
+< c      write(6,201) (el(2,j),j=jbeg,jend)
+< c      print *,'(dum(2,j),j=jbeg,jend)'
+< c      write(6,200) (dum(2,j),j=jbeg,jend)
+---
+>        print *,'n,jbeg,jend=',n,jbeg,jend
+>        print *,'(uab(2,j),j=jbeg,jend)'
+>        write(6,201) (uab(2,j),j=jbeg,jend)
+>        print *,'n,jbeg,jend=',n,jbeg,jend
+>        print *,'(el(2,j),j=jbeg,jend)'
+>        write(6,201) (el(2,j),j=jbeg,jend)
+>        print *,'(dum(2,j),j=jbeg,jend)'
+>        write(6,200) (dum(2,j),j=jbeg,jend)
+5176d5417
+<       print *,'   Southern boundary, iteration nnn=',nnn
+5213a5455
+> c-------------- 02-14-03 do not print nnn
+5214a5457
+>       print *,'   Southern boundary'
+5220,5227c5463,5470
+< c      print *,'n,ibeg,ient=',n,ibeg,ient
+< c      print *,'(vab(i,2),i=ibeg,ient)'
+< c      write(6,201) (vab(i,2),i=ibeg,ient)
+< c      print *,'n,ibeg,ient=',n,ibeg,ient
+< c      print *,'(el(i,2),i=ibeg,ient)'
+< c      write(6,201) (el(i,2),i=ibeg,ient)
+< c      print *,'(dvm(i,2),i=ibeg,ient)'
+< c      write(6,200) (dvm(i,2),i=ibeg,ient)
+---
+>        print *,'n,ibeg,ient=',n,ibeg,ient
+>        print *,'(vab(i,2),i=ibeg,ient)'
+>        write(6,201) (vab(i,2),i=ibeg,ient)
+>        print *,'n,ibeg,ient=',n,ibeg,ient
+>        print *,'(el(i,2),i=ibeg,ient)'
+>        write(6,201) (el(i,2),i=ibeg,ient)
+>        print *,'(dvm(i,2),i=ibeg,ient)'
+>        write(6,200) (dvm(i,2),i=ibeg,ient)
+5232d5474
+<       print *,'   Eastern boundary, iteration nnn=',nnn
+5265a5508
+> c-------------- 02-14-03 do not print nnn
+5266a5510
+>       print *,'   Eastern boundary'
+5272,5279c5516,5523
+< c      print *,'n,jbeg,jend=',n,jbeg,jend
+< c      print *,'(uab(im,j),j=jbeg,jend)'
+< c      write(6,201) (uab(im,j),j=jbeg,jend)
+< c      print *,'n,jbeg,jend=',n,jbeg,jend
+< c      print *,'(el(im,j),j=jbeg,jend)'
+< c      write(6,201) (el(im,j),j=jbeg,jend)
+< c      print *,'(dum(im,j),j=jbeg,jend)'
+< c      write(6,200) (dum(im,j),j=jbeg,jend)
+---
+>        print *,'n,jbeg,jend=',n,jbeg,jend
+>        print *,'(uab(im,j),j=jbeg,jend)'
+>        write(6,201) (uab(im,j),j=jbeg,jend)
+>        print *,'n,jbeg,jend=',n,jbeg,jend
+>        print *,'(el(im,j),j=jbeg,jend)'
+>        write(6,201) (el(im,j),j=jbeg,jend)
+>        print *,'(dum(im,j),j=jbeg,jend)'
+>        write(6,200) (dum(im,j),j=jbeg,jend)
+5284d5527
+<       print *,'   Northern boundary iteration nnn=',nnn
+5318a5562
+> c-------------- 02-14-03 do not print nnn
+5319a5564
+>       print *,'   Northern boundary'
+5325,5333c5570,5582
+< c      print *,'n,ibeg,ient=',n,ibeg,ient
+< c      print *,'(vab(i,jm),i=ibeg,ient)'
+< c      write(6,201) (vab(i,jm),i=ibeg,ient)
+< c      print *,'n,ibeg,ient=',n,ibeg,ient
+< c      print *,'(el(i,jm),i=ibeg,ient)'
+< c      write(6,201) (el(i,jm),i=ibeg,ient)
+< c      print *,'(dvm(i,jm),i=ibeg,ient)'
+< c      write(6,200) (dvm(i,jm),i=ibeg,ient)
+<       end do
+---
+>        print *,'n,ibeg,ient=',n,ibeg,ient
+>        print *,'(vab(i,jm),i=ibeg,ient)'
+>        write(6,201) (vab(i,jm),i=ibeg,ient)
+>        print *,'n,ibeg,ient=',n,ibeg,ient
+>        print *,'(el(i,jm),i=ibeg,ient)'
+>        write(6,201) (el(i,jm),i=ibeg,ient)
+>        print *,'(dvm(i,jm),i=ibeg,ient)'
+>        write(6,200) (dvm(i,jm),i=ibeg,ient)
+>       end do
+> c----------- 02-05-03 do not check north bnd
+> c-----------        and do not change barotropic velocity
+> c  
+>       go to 300
+5347,5349c5596,5598
+< c     print *,' check north bnd TRNUmax=',TRNUmax
+< c     print *,'(TRNU(i,jm-1)/TRNUmax,i=1,im)'
+< c     write(6,201) (TRNU(i,jm-1)/TRNUmax,i=1,im)
+---
+>       print *,' check north bnd TRNUmax=',TRNUmax
+>       print *,'(TRNU(i,jm-1)/TRNUmax,i=1,im)'
+>       write(6,201) (TRNU(i,jm-1)/TRNUmax,i=1,im)
+5359,5361c5608,5610
+< c     print *,' check north bnd Dmax=',Dmax
+< c     print *,'(D(i,jm-1)/Dmax,i=1,im)'
+< c     write(6,201) (D(i,jm-1)/Dmax,i=1,im)
+---
+>       print *,' check north bnd Dmax=',Dmax
+>       print *,'(D(i,jm-1)/Dmax,i=1,im)'
+>       write(6,201) (D(i,jm-1)/Dmax,i=1,im)
+5368,5377c5617,5626
+< c     print *,'(dvm(i,jm-1),i=1,im)'
+< c     write(6,200) (dvm(i,jm-1),i=1,im) 
+< c     print *,'(FSM(i,jm-1),i=1,im)'
+< c     write(6,200) (FSM(i,jm-1),i=1,im) 
+< c     print *,'(FSM(i,jm),i=1,im)'
+< c     write(6,200) (FSM(i,jm),i=1,im) 
+< c     print *,'(H(i,jm),i=1,im)'
+< c     write(6,200) (H(i,jm),i=1,im) 
+< c     print *,'(H(i,jm-1),i=1,im)'
+< c     write(6,200) (H(i,jm-1),i=1,im) 
+---
+>       print *,'(dvm(i,jm-1),i=1,im)'
+>       write(6,200) (dvm(i,jm-1),i=1,im) 
+>       print *,'(FSM(i,jm-1),i=1,im)'
+>       write(6,200) (FSM(i,jm-1),i=1,im) 
+>       print *,'(FSM(i,jm),i=1,im)'
+>       write(6,200) (FSM(i,jm),i=1,im) 
+>       print *,'(H(i,jm),i=1,im)'
+>       write(6,200) (H(i,jm),i=1,im) 
+>       print *,'(H(i,jm-1),i=1,im)'
+>       write(6,200) (H(i,jm-1),i=1,im) 
+5381d5629
+<       print *,'  iteration    nnn=',nnn
+5399,5401c5647,5649
+< c     print *,'          nnn=',nnn
+< c     print *,'    cmp,const'
+< c     write(6,205) cmp,const
+---
+>       print *,'          nnn=',nnn
+>       print *,'    cmp,const'
+>       write(6,205) cmp,const
+5403,5416c5651,5664
+< c     print *,'    wgcf'
+< c     write(6,205) wgcf
+< c     print *,'    mxd'
+< c     write(6,205) mxd
+< c     print *,'    alpha'
+< c     write(6,205) alpha
+< c     print *,'    constw'
+< c     write(6,205) constw
+< c     print *,'    consts'
+< c     write(6,205) consts
+< c     print *,'    conste'
+< c     write(6,205) conste
+< c     print *,'    constn'
+< c     write(6,205) constn
+---
+>       print *,'    wgcf'
+>       write(6,205) wgcf
+>       print *,'    mxd'
+>       write(6,205) mxd
+>       print *,'    alpha'
+>       write(6,205) alpha
+>       print *,'    constw'
+>       write(6,205) constw
+>       print *,'    consts'
+>       write(6,205) consts
+>       print *,'    conste'
+>       write(6,205) conste
+>       print *,'    constn'
+>       write(6,205) constn
+5449c5697,5702
+<       end do
+---
+> c----------------- 02-05-03 do not use iterations loop nnn
+> c                           comment end do
+> c     end do
+> c----------------- 02-05-03 do not change barotropic velocity
+> c
+>  300  continue
+5547c5800,5801
+< 	SUBROUTINE MIXSSTZ(f,STM,H,FSM,Zlev,im,jm,nl,TBIAS)
+---
+> c------------------- falk 06-21-05 use new SST assimilation procedure
+> 	SUBROUTINE MIXSSTZ_o(f,STM,H,FSM,Zlev,im,jm,nl,TBIAS)
+5990c6244
+< c           call filtr1D(tr,mmm,1,jj,kf)
+---
+>            call filtr1D(tr,mmm,1,jj,kf)
+6055c6309,6310
+<       call SP(x,y,yi,R1,xi,lb,ni-1,n,ni)
+---
+> c---------- falk 06-21-05 use R1 as inner param
+>       call SP(x,y,yi,xi,lb,ni-1,n,ni)
+6089,6090c6344,6346
+<       SUBROUTINE SP(X,Y,R,R1,Z,KK,JJ,KKM,JJM)
+<       DIMENSION X(KKM),Y(KKM),R(JJM),R1(JJM),Z(JJM),
+---
+> c---------- falk 06-21-05 use R1 as inner param
+>       SUBROUTINE SP(X,Y,R,Z,KK,JJ,KKM,JJM)
+>       DIMENSION X(KKM),Y(KKM),R(JJM),Z(JJM),
+6092c6348
+<      *V(500),Q(500)
+---
+>      *V(500),Q(500),R1(500)
+6143a6400,6878
+> c
+> c------------------- 07-18-03 include new out1D
+> c
+>       subroutine out1D(startdate,LATMIN,LATMAX,LONGMIN,LONGMAX)
+> c------------ 1D falk 07-15-03 
+> c-------   save output for vertical profiles in point (xpr,ypr)
+> c-------   to check vertical turbulence
+>       INCLUDE 'comblk.h'
+>       REAL LATMIN,LATMAX,LONGMIN,LONGMAX,julday
+>       INTEGER year
+>       CHARACTER FN*15, DOUT*8
+>       integer*4 startdate,date
+> c---------  position of Lili 2002 30 Sept. 12 UTC
+>       xpr=-79.6
+>       ypr=19.6
+> C
+>       CALL DATE2DAY(year,julday,startdate)
+> CC
+>        julday=julday+time+1.e-5
+> CC
+>       call day2date(year,julday,date)
+>       WRITE(DOUT,'(I8.8)') date
+> c---------
+>       FN = 'TURB.'//DOUT
+>       OPEN(41,FILE=FN,STATUS='UNKNOWN',form='formatted')
+> c---------
+> c------- find i for xpr, j for ypr
+>       dlon=(LONGMAX-LONGMIN)/float(im-1)
+>       do m=1,im-1
+>        x1=LONGMIN+dlon*float(m-1)
+>        x2=x1+dlon
+>        if(xpr.gt.x1.and.xpr.le.x2) then
+>         i=m
+>         if(abs(x1-xpr).gt.abs(x2-xpr)) i=m+1
+>         go to 100
+>        end if
+>       end do
+>  100  continue
+>       if(xpr.le.LONGMIN) i=1
+>       if(xpr.ge.LONGMAX) i=im
+>       dlat=(LATMAX-LATMIN)/float(jm-1)
+>       do m=1,jm-1
+>        y1=LATMIN+dlat*float(m-1)
+>        y2=y1+dlat
+>        if(ypr.gt.y1.and.ypr.le.y2) then
+>         j=m
+>         if(abs(y1-ypr).gt.abs(y2-ypr)) j=m+1
+>         go to 200
+>        end if
+>       end do
+>  200  continue
+>       if(ypr.le.LATMIN) j=1
+>       if(ypr.ge.LATMAX) j=jm
+> c---------
+>       write(41,101) IINT,xpr,ypr,i,j
+>       write(6,101) IINT,xpr,ypr,i,j
+>  101  format('TURB: IINT=, for point x,y i,j =',i7,2f7.2,2i7)
+>       write(41,102) 0.,WUSURF(i,j),WVSURF(i,j)
+>       write(6,102) 0.,WUSURF(i,j),WVSURF(i,j)
+>  102  format(/,1x,f6.0,2(1PE10.2),'        =  SURFACE FLUXES')
+>       write(41,103) H(i,j),WUBOT(i,j),WVBOT(i,j)
+>       write(6,103) H(i,j),WUBOT(i,j),WVBOT(i,j)
+>  103  format(/,1x,f6.0,2(1PE10.2),'        =  BOTTOM FLUXES')
+>       write(41,104) 
+>       write(6,104) 
+>  104  format(1X,'  DEPTH     U         V         T         S ')
+>       do k=1,kb
+>        ZZD=ZZ(K)*H(i,j)
+>        write(41,105) ZZD,u(i,j,k),v(i,j,k),t(i,j,k),s(i,j,k)
+>        write(6,105) ZZD,u(i,j,k),v(i,j,k),t(i,j,k),s(i,j,k)
+>  105   FORMAT(1X,F7.1,4(1PE10.2))
+>       end do
+>       write(41,106) 
+>       write(6,106) 
+>  106  format(1X,'  DEPTH    Q2       Q2L       KM        KH        KQ')
+>       do k=1,kb
+>        ZD=Z(k)*H(i,j)
+>        write(41,107) ZD,Q2(i,j,k),Q2L(i,j,k),KM(i,j,k),KH(i,j,k),
+>      *               KQ(i,j,k)
+>        write(6,107)ZD,Q2(i,j,k),Q2L(i,j,k),KM(i,j,k),KH(i,j,k),
+>      *               KQ(i,j,k)
+>  107   FORMAT(1X,F7.1,5(1PE10.2))
+>       end do
+>       CLOSE(41)
+>       WRITE(6,*) 'OUTPUT FILES:'
+>       WRITE(6,*) ' --> ',FN
+>       RETURN
+>       END
+> c
+> c------------- falk 01-05-04 add avrtau
+> c       
+>       subroutine avrtau(xln,ylt,mig)
+>       parameter(timesm4=12.,timesm=12.,RAVR=100.e3)
+> c--------- This subr. is called from WIND in phase4 (mig=0)
+> c---------         and from atmos2ocean.f (mig=1) in coupled run
+>       include 'comblk.h'
+>       include 'TVARY.h'
+>       REAL LATMIN,LATMAX,LONGMIN,LONGMAX
+>       COMMON/sphere/REARTH,LATMIN,LATMAX,LONGMIN,LONGMAX
+>       real xln,ylt,tavr,counter,x1,y1,x0,y0,r,deltax,deltay
+>       real xlnc,yltc,tauavrp,taumaxp
+>       real tauavr,taumax,awucon,bwucon
+>       real RAVR,RRCT,xrct,yrct
+>       integer irct,jrct
+>       integer migtau
+> c
+> c------------- in comblk.h included common/tau/
+> c------------- also the next 5 parameters incuded in RST file
+> c     common/tau/ tauavr,taumax,awucon,bwucon,migtau
+> c-------------
+>       if(mig.eq.1) then
+>        print *,'begin avrtau: couped model'
+>       else
+>        print *,'begin avrtau: phase4'
+>       end if
+> c-------------
+> c
+> c     write(6,201) LATMIN,LATMAX,LONGMIN,LONGMAX
+>  201  format('avrtau: LATMIN,LATMAX,LONGMIN,LONGMAX=',4f7.2)`
+> c
+>       pi=3.1415927
+> c------- save previous tauavr, taumax
+>       tauavrp=tauavr
+>       taumaxp=taumax
+> c-------  for coupled run use TC position from TVARY.h
+> c-------  for phase4 run use TC position: (xln,ylt)
+>       if(mig.eq.1) then
+>        xlnc=poslon
+>        yltc=poslat
+>       else
+>        xlnc=xln
+>        yltc=ylt
+>       end if
+> c
+>       tavr=0.0
+>       counter=0.0
+>       taumax=0.0
+>       RRCT=1.e8
+>       irct=1000
+>       jrct=1000
+>       do j=1,jm
+>        do i=1,im
+>         x1=(LONGMIN+float(I-1)*(LONGMAX-LONGMIN)/float(IM-1))*pi/180.
+>         y1=(LATMIN+float(J-1)*(LATMAX-LATMIN)/float(JM-1))*pi/180.
+>         x0=xlnc*pi/180.
+>         y0=yltc*pi/180.
+>         DELTAX=REARTH*COS(y0)*(x1-x0)
+>         DELTAY=REARTH*(y1-y0)
+>         r=SQRT(DELTAX**2+DELTAY**2)
+>         if(r.lt.RAVR) then
+>           tauabs=sqrt(wusurf(i,j)**2+wvsurf(i,j)**2)
+>           if(tauabs*fsm(i,j).gt.taumax) taumax=tauabs
+>           tavr=tavr+tauabs*fsm(i,j)
+>           counter=counter+fsm(i,j)
+>         end if
+>         if(r.lt.RRCT) then
+>          RRCT=r
+>          irct=i
+>          jrct=j
+>          xrct=x1*180./pi
+>          yrct=y1*180./pi
+>         end if
+>        end do
+>       end do
+>       if(counter.gt.0.) then
+>         tauavr=tavr/counter
+>       else
+>         tauavr=0.0
+>       end if
+> c
+>       if(mig.eq.1.and.migtau.eq.0) then
+> c--------- falk 08-19-03 use taumax instead of tauavr
+> c      if(tauavr.gt.tauavrp) then
+> c       awucon=tauavrp/tauavr
+> c       bwucon=(tauavr-tauavrp)/tauavr
+>        if(taumax.gt.taumaxp) then
+>         awucon=taumaxp/taumax
+>         bwucon=(taumax-taumaxp)/taumax
+>        else
+>         awucon=1.
+>         bwucon=0.
+>        end if
+> c-------------
+>        print *,' avrtau: first step in coupled model'
+>        print *,'migtau,mig=',migtau,mig
+>        write(6,101) tauavrp,tauavr,awucon,bwucon
+>  101   format(' tauavrp,tauavr,awucon,bwucon=',4(1PE10.2))
+> c-------------
+>        migtau=1
+>       end if
+> c
+>       if(mig.eq.1) then
+>        wucon=awucon+SIN(time*24./timesm*pi*0.5)*bwucon
+>        if(time*24..gt.timesm) wucon=1.
+>       else
+>        wucon=SIN(time*24./timesm4*pi*0.5)
+>        if(time*24..gt.timesm4) wucon=1.
+>       end if
+> c
+>       do j=1,jm
+>         do i=1,im
+>          wusurf(i,j)=wusurf(i,j)*wucon
+>          wvsurf(i,j)=wvsurf(i,j)*wucon
+>          taux(i,j)=taux(i,j)*wucon
+>          tauy(i,j)=tauy(i,j)*wucon
+>         end do
+>       end do
+> c-------------
+> c----------- falk 09-12-05 change output
+>       if(MOD(IINT,24).EQ.0) then
+>       if(mig.eq.1) then
+>        print *,'avrtau: couped model'
+>       else
+>        print *,'avrtau: phase4'
+>       end if
+> c-------------
+>       write(6,102) time*24,xlnc,yltc
+>  102  format('time*24,xlnc,yltc=',3f7.2)
+>       print *,'closest point to the center'
+>       write(6,204) xrct,yrct,RRCT,irct,jrct
+>  204  format('xrct,yrct,RRCT,irct,jrct=',2f7.2,f10.0,2i7)
+>       write(6,103) tauavrp,tauavr,taumaxp,taumax
+>  103  format('tauavrp,tauavr,taumaxp,taumax=',4(1PE10.2))
+>       write(6,202) awucon,bwucon,wucon
+>  202  format('  awucon,bwucon,wucon=',3f10.4)
+> c     write(6,203) timesm4,timesm
+>  203  format(   'timesm4,timesm=',2f7.2)
+> c-------------
+>       end if
+>       return
+>       end
+> c
+> c------------------- falk 06-21-05 use new SST assimilation procedure
+> c
+>       SUBROUTINE MIXSSTZ(f,STM,H,FSM,Zlev,im,jm,nl,TBIAS)
+>       parameter(kk=9,jj=31,step=5.)
+> c---------------------------------------------------------------------
+> c----- this subr. was rewritten 06/17/05 by A.Falkovich
+> c----- to assimilate SST real data in GDEM monthly t data for Z-levels
+> c---------------------------------------------------------------------
+> c
+> c---- Change temperature in the layer 0-125m.
+> c---- Use spline to interpolate from GDEM z-levels to even step 10m
+> c---- Here temperature is specified at all levels 
+> c----                                 (under land and under bottom)
+> c---- Mixed layer depth is the last level n where t(1)-t(k)<0.5deg
+> c---- DTS=STM-t(1);  tnew(k)=t(k)+DTS for k=1,...,n
+> c---- if abs(DTS)>5deg correct STM
+> c---- if STM<t(150m) correct STM
+> c
+>       real STM(im,jm),H(im,jm),FSM(im,jm)
+>       real f(IM,JM,nl),Zlev(nl)
+>       real DTS,t(jj),z(jj),tt(kk),zz(kk),tc(jj),te(kk),dt(kk)
+>       logical plg1,plg2,plg3
+> c
+> c--------- STM is used after correction for TBIAS,
+> c--------- f temperature before correction for TBIAS
+> c
+> c
+> c---------------
+>       print *,' MIXSSTZ: im,jm,nl=',im,jm,nl
+>       print *,' TBIAS=',TBIAS
+>       print *,'kk,jj=',kk,jj
+>       print *,'  Zlev, k=1,nl'
+> c---------------
+>       write(6,202) (Zlev(k),k=1,nl)
+>  202  format(10f7.0)
+> c--------------- for debug
+>        i0=124
+>        j0=92
+> c--------------- for debug
+>        i1=124
+>        j1=88
+>        j2=98
+> c---------------
+>        print *,' BEFORE SST ASSIM: i1,j1,j2=',i1,j1,j2
+>        print *,'     f(i1,j,k), j=j1,j2   nl=',nl
+>        write(6,301) (j,j=j1,j2)
+>        do k=1,kk
+>         write(6,302) Zlev(k),(f(i1,j,k),j=j1,j2)
+>        end do
+>  301   format(5x,11i7)
+>  302   format(f8.0,11f7.2)
+> c---------------
+> c-----  remove correction for TBIAS
+>       do j=1,jm
+>       do i=1,im
+>          if(FSM(i,j).eq.1.) STM(i,j)=STM(i,j)+TBIAS
+>       end do
+>       end do
+> c----------------
+>       write(6,401) i0,j0,STM(i0,j0),H(i0,j0)
+>  401  format('i0,j0,STM(i0,j0),H(i0,j0)=',
+>      *            /2i7,f7.2,f7.0)
+> c---------------
+>       print *,'     STM(i1,j), j=j1,j2 '
+>       write(6,303) (STM(i1,j),j=j1,j2)
+>  303  format(8x,11f7.2)
+> c
+> c------------------ check difference between STM and f(i,j,1)
+> c
+>       difmax=0.
+>       difmin=0.
+>       do i=1,im
+>       do j=1,jm
+>        if(FSM(i,j).gt.0.5) then
+>         difp=STM(i,j)-f(i,j,1)
+>         difm=-difp
+>         if(difp.gt.difmax) then
+>          imax=i
+>          jmax=j
+>          difmax=difp
+>         end if
+>         if(difm.gt.difmin) then
+>          imin=i
+>          jmin=j
+>          difmin=difm
+>         end if
+>        end if
+>       end do
+>       end do
+> c------------------
+>       print *,' MIXSSTZ: max(STM-f(1)),i,j'
+>       print *,' difmax,idifmax,jdifmax=',difmax,imax,jmax
+>       print *,' MIXSSTZ: max(f(1)-STM),i,j'
+>       print *,' difmin,imin,jmin=',difmin,imin,jmin
+> c------------------ specify z and zz
+>       do j=1,jj
+>        z(j)=step*float(j-1)
+>       end do
+>       do k=1,kk
+>        zz(k)=Zlev(k)
+>       end do
+> c------------------
+> c-----------------------------   loops in i,j
+>       do j=1,jm
+>       do i=1,im
+> c--------------- for debug
+> c      plg1=i.eq.i0.and.j.eq.j0
+>        plg1=i.eq.i1.and.j.ge.j1.and.j.le.j2
+>        plg2=i.eq.imax.and.j.eq.jmax
+>        plg3=i.eq.imin.and.j.eq.jmin
+> c---------------
+>        if(FSM(i,j).eq.0.) go to 1000
+> c------------         send tt
+>        do k=1,kk
+>         tt(k)=f(i,j,k)
+>        end do
+> c------------         send SST
+>        SST=STM(i,j)
+> c------------         SP interpolate  to even step z
+>        call SP(zz,tt,t,z,kk,jj,kk,jj)
+> c------------
+> c      if(i.eq.i0.and.j.eq.j0) then
+>        if(plg1.or.plg2.or.plg3) then
+> c------------
+>         print *,'i,j,SST=',i,j,SST
+>         print *,'initial depth zz'
+>         write(6,101) zz
+>  101    format(10f7.0)
+> c------------
+>         print *,'initial temperature tt'
+>         write(6,102) tt
+>  102    format(10f7.2)
+> c------------
+>         print *,' depth for interpolation'
+>         write(6,101) z
+> c------------
+>         print *,'temperature after SPLINE interpolation'
+>         write(6,102) t
+> c------------
+>        end if
+> c
+> c------------- find n for the depth of mixed layer
+>        n=1
+>        do while ((t(1)-t(n+1)).le.0.5.and.n.lt.(jj))
+>         n=n+1
+>        end do
+> c------------- if mixed layer more than 80m send 80m (n=17)
+>        if(n.gt.17) n=17
+> c---------------------- correct SST if it deviates too much from t(1)
+>        if(SST-t(1).gt.5.)  SST=t(1)+5.
+>        if(SST-t(1).lt.-5.) SST=t(1)-5.
+> c---------------------- correct SST if SST<t(jj)
+>        if(SST.lt.t(jj)) SST=t(jj)
+> c----------------------
+>        DTS=SST-t(1)
+> c----------------------
+>        do k=1,n
+>           tc(k)=t(k)+DTS
+>        end do
+> c----------------------
+>        m=jj-n
+> c----------------------
+>        do k=n+1,jj
+>         tc(k)=t(k)+DTS*float(jj-k)/float(m)
+>        end do
+> c----------------------
+> c      if(i.eq.i0.and.j.eq.j0) then
+> c      if(plg2.or.plg3) then
+>        if(plg1.or.plg2.or.plg3) then
+>          print *,'i,j,SST=',i,j,SST
+>          print *,'MIX: n,m=',n,m
+>          write(6,201) SST,t(1),DTS
+>  201     format('SST,t(1),DTS=',3f7.2)
+> c------------
+>          print *,' depth for interpolation'
+>          write(6,101) z
+> c------------
+>          print *,'temperature in MIX before checking'
+>          write(6,102) tc
+>        end if
+> c------------- check if(tc(k).lt.t(jj))
+>        do k=2,jj-1
+>         if(tc(k).le.t(jj)) then
+>           n=k-1
+>           m=jj-n
+>           DTS=t(jj)-tc(n)
+> c         write(6,104) n,m,DTS
+>  104      format('n,m,DTS=',2i7,f7.2)
+>           go to 100
+>         end if
+>        end do
+>        go to 200
+>  100   continue
+>        do k=n+1,jj
+>          tc(k)=t(jj)-DTS*float(jj-k)/float(m)
+>        end do
+> c------------
+>  200   continue
+> c------------- check stability
+>        do k=2,jj
+>          if(tc(k-1).lt.tc(k)) tc(k)=tc(k-1)
+>        end do
+> c------------ interpolate back to GDEM Z-levels
+>        call SP(z,tc,te,zz,jj,kk,jj,kk)
+> c------------
+>        do k=1,kk
+>          dt(k)=te(k)-tt(k)
+>        end do
+> c------------
+> c      if(i.eq.i0.and.j.eq.j0) then
+> c      if(plg2.or.plg3) then
+>        if(plg1.or.plg2.or.plg3) then
+>          print *,'i,j,SST=',i,j,SST
+>          print *,'temperature in MIX after checking'
+>          write(6,102) tc
+> c------------
+>          print *,'initial depth zz'
+>          write(6,101) zz
+> c------------
+>          print *,'initial temperature tt'
+>          write(6,102) tt
+> c------------
+>          print *,'temperature after back interpolation'
+>          write(6,102) te
+> c------------
+>          print *,'temperature differences after MIX'
+>          write(6,102) dt
+>        end if
+> c---------------------- send back adjusted temperature
+>        do k=1,kk
+>          f(i,j,k)=te(k)
+>        end do
+> c------------
+>  1000  continue
+> c--------------------- end loops in i,j
+>       end do
+>       end do
+> c----------------------
+>        print *,' AFTER SST ASSIM: i1,j1,j2=',i1,j1,j2
+>        print *,'     f(i1,j,k), j=j1,j2   nl=',nl
+>        write(6,301) (j,j=j1,j2)
+>        do k=1,kk
+>         write(6,302) Zlev(k),(f(i1,j,k),j=j1,j2)
+>        end do
+> c----------------------
+>       return
+>       end

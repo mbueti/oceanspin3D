@@ -1,0 +1,6 @@
+!!! IMPORTANT NOTE REGARDING EXECUTABLE !!!
+
+SUBROUTINE TRANSPORTS in ocean.f may need to be modified to correctly account for the extended western boundary...
+The current version of gfdl_ocean_eastatlnew has NO MODS to this subroutine...
+
+-RMY: Saturday 4/14/07 @ 6:30 pm
